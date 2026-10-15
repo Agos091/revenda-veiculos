@@ -105,14 +105,23 @@ export function FormularioVeiculo({ veiculo }: { veiculo?: VeiculoComFotos | nul
 
   const descricao = watch("descricao") ?? "";
 
-  const onSubmit = (valores: VeiculoFormData) => {
+  const onSubmit = (valores: VeiculoFormData, status?: VeiculoFormData["status"]) => {
     startTransition(async () => {
-      const r = await salvarVeiculo(veiculo?.id ?? null, valores);
+      const r = await salvarVeiculo(veiculo?.id ?? null, {
+        ...valores,
+        status: status ?? valores.status,
+      });
       if (!r.ok) {
         toast.error(r.erro ?? "Não foi possível salvar.");
         return;
       }
-      toast.success(veiculo ? "Veículo atualizado." : "Veículo cadastrado.");
+      toast.success(
+        status === "inativo"
+          ? "Rascunho salvo — o veículo não aparece no site."
+          : veiculo
+            ? "Veículo atualizado."
+            : "Veículo cadastrado.",
+      );
       if (!veiculo && r.id) router.push(`/admin/veiculos/${r.id}`);
       else router.refresh();
     });
@@ -123,7 +132,7 @@ export function FormularioVeiculo({ veiculo }: { veiculo?: VeiculoComFotos | nul
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onErro)} className="pb-24">
+    <form onSubmit={handleSubmit((v) => onSubmit(v), onErro)} className="pb-24">
       <Tabs value={aba} onValueChange={setAba}>
         <TabsList className="mb-6 flex w-full flex-wrap justify-start">
           {ABAS.map((a) => (
@@ -477,9 +486,10 @@ export function FormularioVeiculo({ veiculo }: { veiculo?: VeiculoComFotos | nul
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/admin/veiculos")}
+              disabled={salvando}
+              onClick={handleSubmit((v) => onSubmit(v, "inativo"), onErro)}
             >
-              Cancelar
+              Salvar rascunho
             </Button>
             <Button type="submit" size="lg" disabled={salvando}>
               {salvando ? "Salvando…" : veiculo ? "Salvar alterações" : "Salvar e publicar"}

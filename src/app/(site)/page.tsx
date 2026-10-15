@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Banknote, FileCheck2, Repeat } from "lucide-react";
+import { BadgeCheck, Banknote, FileCheck2, MapPin, Repeat } from "lucide-react";
 import { listarDestaques, listarVeiculosPublico } from "@/lib/veiculos/publico";
 import { obterConfiguracoesPublicas } from "@/lib/veiculos/publico";
 import type { VeiculoComFotos } from "@/types/database";
@@ -153,7 +153,7 @@ export default async function HomePage() {
             Onde estamos
             <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
           </h2>
-          <div className="mt-6 grid gap-4 rounded-xl border bg-card p-6 sm:grid-cols-2">
+          <div className="mt-6 grid gap-6 rounded-xl border bg-card p-6 sm:grid-cols-2">
             {configuracoes?.endereco && (
               <div>
                 <p className="text-xs tracking-wide text-muted-foreground uppercase">
@@ -171,6 +171,26 @@ export default async function HomePage() {
                   Horário
                 </p>
                 <p className="mt-1">{configuracoes.horario}</p>
+              </div>
+            )}
+
+            {configuracoes?.endereco && (
+              <div className="sm:col-span-2">
+                {/* abre o app de mapas do celular em vez de carregar um iframe pesado */}
+                <Button asChild variant="outline">
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      [configuracoes.endereco, configuracoes.cidade]
+                        .filter(Boolean)
+                        .join(", "),
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MapPin className="size-4" />
+                    Como chegar
+                  </a>
+                </Button>
               </div>
             )}
           </div>

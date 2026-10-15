@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { env } from "@/lib/env";
 
 export interface ResultadoAcao {
   ok: boolean;
@@ -44,8 +45,42 @@ export async function enviarRecuperacao(
   if (!email) return { ok: false, erro: "Informe o email." };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
-  if (error) return { ok: false, erro: error.message };
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${env.siteUrl}/admin/auth/callback?next=/admin/nova-senha`,
+  });
+
+  // não dizemos se o email existe ou não — isso vazaria quem tem conta
+  if (error) console.error("[recuperacao]", error.message);
 
   return { ok: true };
+}
+
+/** Define a nova senha. Exige a sessão criada pelo link enviado por email. */
+export async function redefinirSenha(
+  _anterior: ResultadoAcao | null,
+  formData: FormData,
+): Promise<ResultadoAcao> {
+  const senha = String(formData.get("senha") ?? "");
+  const confirmacao = String(formData.get("confirmacao") ?? "");
+
+  if (senha.length < 8) {
+    return { ok: false, erro: "A senha precisa ter pelo menos 8 caracteres." };
+  }
+  if (senha !== confirmacao) {
+    return { ok: false, erro: "As senhas não são iguais." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { ok: false, erro: "O link expirou. Peça a recuperação de novo." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: senha });
+  if (error) return { ok: false, erro: error.message };
+
+  redirect("/admin");
 }

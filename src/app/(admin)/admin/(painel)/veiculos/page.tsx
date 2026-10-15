@@ -122,7 +122,8 @@ export default async function ListaVeiculosPage({
         </Card>
       ) : (
         <Card className="overflow-hidden p-0">
-          <Table>
+          {/* tabela no desktop */}
+          <Table className="hidden sm:table">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[4.5rem]">Foto</TableHead>
@@ -194,6 +195,65 @@ export default async function ListaVeiculosPage({
               })}
             </TableBody>
           </Table>
+
+          {/* no celular a tabela vira lista de cards */}
+          <ul className="divide-y sm:hidden">
+            {veiculos.map((v) => {
+              const foto = capa(v);
+              const nome = `${tituloVeiculo(v)} ${v.ano_modelo}`;
+              return (
+                <li key={v.id} className="space-y-3 p-4">
+                  <div className="flex gap-3">
+                    <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                      {foto ? (
+                        <Image
+                          src={foto.url}
+                          alt={nome}
+                          fill
+                          sizes="64px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <ImageOff className="absolute inset-0 m-auto size-4 text-muted-foreground" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/admin/veiculos/${v.id}`}
+                        className="font-medium hover:text-primary"
+                      >
+                        {nome}
+                      </Link>
+                      <p className="text-xs text-muted-foreground tabular-nums">
+                        {formatarKm(v.km)} · {rotulo(v.cambio)}
+                      </p>
+                      <p className="font-heading text-lg font-bold tabular-nums">
+                        {formatarPreco(v.preco)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1">
+                      <Button asChild variant="ghost" size="icon-sm">
+                        <Link href={`/admin/veiculos/${v.id}`} aria-label={`Editar ${nome}`}>
+                          <Pencil className="size-4" />
+                        </Link>
+                      </Button>
+                      <BotaoExcluir id={v.id} nome={nome} />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <SelectStatus id={v.id} status={v.status} />
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      Destaque
+                      <ToggleDestaque id={v.id} destaque={v.destaque} />
+                    </label>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </Card>
       )}
     </main>

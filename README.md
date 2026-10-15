@@ -25,8 +25,20 @@ Site público em `http://localhost:3000`, área do vendedor em `/admin`.
 ### Modo demo
 
 Sem projeto Supabase ainda? Coloque `NEXT_PUBLIC_DEMO=1` no `.env.local`: o site
-público passa a usar 8 carros de exemplo (`src/lib/veiculos/demo.ts`), o que serve
-para ver e testar o fluxo. Só funciona em desenvolvimento e não afeta o admin.
+público e as **leituras** do admin passam a usar 8 carros de exemplo
+(`src/lib/veiculos/demo.ts`), e o login é dispensado para dar para navegar pelas
+telas. Salvar, excluir e subir foto continuam exigindo Supabase de verdade.
+Só funciona em desenvolvimento.
+
+### Testes
+
+```bash
+npm test          # vitest run
+npm run test:watch
+```
+
+Cobrem formatação pt-BR, montagem do link do WhatsApp, o schema de validação do
+veículo e os filtros/ordenação do catálogo (rodando sobre os dados de exemplo).
 
 ### Banco de dados
 
@@ -67,4 +79,5 @@ Tokens de cor, fonte e raio ficam em `src/app/globals.css`.
 - [x] Fase 1 — SQL de banco e RLS escrito (falta rodar no projeto Supabase)
 - [x] Fase 2 — Admin: login, painel, tabela, formulário em abas, fotos e configurações
 - [x] Fase 3 — Site público: home, listagem com filtros, detalhe, WhatsApp, SEO/OG e sitemap
+- [x] Testes automatizados (vitest), recuperação de senha, admin em cards no celular
 - [~] Fase 4 — Go-live: código pronto (ISR, analytics, headers, 404, ícone) — falta criar Supabase, Vercel e domínio, ver [docs/DEPLOY.md](docs/DEPLOY.md)

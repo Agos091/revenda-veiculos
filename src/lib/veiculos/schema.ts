@@ -2,24 +2,25 @@ import { z } from "zod";
 
 const ANO_MAX = new Date().getFullYear() + 1;
 
-/** Converte "" em null; usado nos campos opcionais de texto. */
+/** Converte "", null e ausente em null; usado nos campos opcionais de texto. */
 const textoOpcional = z
   .string()
   .trim()
-  .transform((v) => (v === "" ? null : v))
-  .nullable();
+  .nullish()
+  .transform((v) => (v == null || v === "" ? null : v));
 
-/** Converte "" e NaN em null nos números opcionais. */
+/** Converte "", NaN, null e ausente em null nos números opcionais. */
 const numeroOpcional = z
   .union([z.number(), z.string()])
+  .nullish()
   .transform((v) => {
+    if (v == null) return null;
     if (typeof v === "number") return Number.isNaN(v) ? null : v;
     const limpo = v.trim();
     if (limpo === "") return null;
     const n = Number(limpo.replace(/\./g, "").replace(",", "."));
     return Number.isNaN(n) ? null : n;
-  })
-  .nullable();
+  });
 
 export const veiculoSchema = z
   .object({

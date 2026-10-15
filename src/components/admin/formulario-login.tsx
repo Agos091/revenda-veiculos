@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { entrar, type ResultadoAcao } from "@/lib/auth/actions";
@@ -17,7 +18,13 @@ function BotaoEntrar() {
   );
 }
 
-export function FormularioLogin({ destino }: { destino?: string }) {
+export function FormularioLogin({
+  destino,
+  avisoDeLink,
+}: {
+  destino?: string;
+  avisoDeLink?: string;
+}) {
   const [estado, acao] = useActionState<ResultadoAcao | null, FormData>(entrar, null);
 
   return (
@@ -39,7 +46,15 @@ export function FormularioLogin({ destino }: { destino?: string }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="senha">Senha</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="senha">Senha</Label>
+              <Link
+                href="/admin/recuperar-senha"
+                className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Esqueci a senha
+              </Link>
+            </div>
             <Input
               id="senha"
               name="senha"
@@ -48,6 +63,12 @@ export function FormularioLogin({ destino }: { destino?: string }) {
               required
             />
           </div>
+
+          {avisoDeLink && !estado?.erro && (
+            <p role="alert" className="text-sm text-destructive">
+              {avisoDeLink}
+            </p>
+          )}
 
           {estado?.erro && (
             <p role="alert" className="text-sm text-destructive">

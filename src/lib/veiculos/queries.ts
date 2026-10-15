@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { CONFIGURACOES_DEMO, modoDemo } from "@/lib/veiculos/demo";
+import { CONFIGURACOES_DEMO, modoDemo, VEICULOS_DEMO } from "@/lib/veiculos/demo";
 import type {
   Configuracoes,
   StatusVeiculo,
@@ -18,6 +18,21 @@ export interface FiltroAdmin {
 export async function listarVeiculosAdmin(
   filtro: FiltroAdmin = {},
 ): Promise<VeiculoComFotos[]> {
+  // no modo demo só a leitura é simulada: salvar e excluir seguem exigindo Supabase
+  if (modoDemo()) {
+    const busca = filtro.busca?.trim().toLowerCase();
+    return VEICULOS_DEMO.filter((v) => {
+      if (filtro.status && filtro.status !== "todos" && v.status !== filtro.status) {
+        return false;
+      }
+      if (busca) {
+        const alvo = `${v.marca} ${v.modelo} ${v.versao ?? ""}`.toLowerCase();
+        if (!alvo.includes(busca)) return false;
+      }
+      return true;
+    });
+  }
+
   const supabase = await createClient();
   let query = supabase
     .from("veiculos")
@@ -42,6 +57,8 @@ export async function listarVeiculosAdmin(
 }
 
 export async function obterVeiculo(id: string): Promise<VeiculoComFotos | null> {
+  if (modoDemo()) return VEICULOS_DEMO.find((v) => v.id === id) ?? null;
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("veiculos")
@@ -68,6 +85,18 @@ export interface MetricasDashboard {
 }
 
 export async function obterMetricas(): Promise<MetricasDashboard> {
+  if (modoDemo()) {
+    const contar = (status: string) =>
+      VEICULOS_DEMO.filter((v) => v.status === status).length;
+    return {
+      disponiveis: contar("disponivel"),
+      reservados: contar("reservado"),
+      vendidosNoMes: contar("vendido"),
+      cliquesNaSemana: 12,
+      ultimos: VEICULOS_DEMO.slice(0, 5),
+    };
+  }
+
   const supabase = await createClient();
 
   const agora = new Date();

@@ -6,9 +6,16 @@ export const metadata: Metadata = { title: "Entrar — Revenda de Veículos" };
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; erro?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, erro } = await searchParams;
+
+  const avisoDeLink =
+    erro === "link-expirado"
+      ? "Esse link de recuperação expirou. Peça um novo."
+      : erro === "link-invalido"
+        ? "Link de recuperação inválido. Peça um novo."
+        : undefined;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface px-4">
@@ -19,7 +26,7 @@ export default async function LoginPage({
           </p>
           <p className="text-sm text-muted-foreground">Área do vendedor</p>
         </div>
-        <FormularioLogin destino={next} />
+        <FormularioLogin destino={next} avisoDeLink={avisoDeLink} />
       </div>
     </main>
   );
