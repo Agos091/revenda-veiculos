@@ -21,7 +21,7 @@ export type Combustivel =
   | "eletrico";
 export type Cambio = "manual" | "automatico" | "automatizado" | "cvt";
 
-export interface Veiculo {
+export type Veiculo = {
   id: string;
   slug: string;
   status: StatusVeiculo;
@@ -53,18 +53,18 @@ export interface Veiculo {
   descricao: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface VeiculoFoto {
+export type VeiculoFoto = {
   id: string;
   veiculo_id: string;
   url: string;
   ordem: number;
   is_capa: boolean;
   created_at: string;
-}
+};
 
-export interface Configuracoes {
+export type Configuracoes = {
   id: number;
   nome_loja: string;
   whatsapp: string;
@@ -73,13 +73,13 @@ export interface Configuracoes {
   horario: string | null;
   instagram: string | null;
   updated_at: string;
-}
+};
 
-export interface CliqueWhatsapp {
+export type CliqueWhatsapp = {
   id: string;
   veiculo_id: string | null;
   created_at: string;
-}
+};
 
 /** Veículo com as fotos já carregadas (join usado nas páginas públicas). */
 export type VeiculoComFotos = Veiculo & { fotos: VeiculoFoto[] };
@@ -93,30 +93,57 @@ export interface Database {
         Row: Veiculo;
         Insert: Insert<Veiculo, "id" | "created_at" | "updated_at" | "slug">;
         Update: Partial<Veiculo>;
+        Relationships: [];
       };
       veiculo_fotos: {
         Row: VeiculoFoto;
         Insert: Insert<VeiculoFoto, "id" | "created_at">;
         Update: Partial<VeiculoFoto>;
+        Relationships: [
+          {
+            foreignKeyName: "veiculo_fotos_veiculo_id_fkey";
+            columns: ["veiculo_id"];
+            isOneToOne: false;
+            referencedRelation: "veiculos";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       configuracoes: {
         Row: Configuracoes;
         Insert: Insert<Configuracoes, "id" | "updated_at">;
         Update: Partial<Configuracoes>;
+        Relationships: [];
       };
       cliques_whatsapp: {
         Row: CliqueWhatsapp;
         Insert: Insert<CliqueWhatsapp, "id" | "created_at">;
         Update: Partial<CliqueWhatsapp>;
+        Relationships: [
+          {
+            foreignKeyName: "cliques_whatsapp_veiculo_id_fkey";
+            columns: ["veiculo_id"];
+            isOneToOne: false;
+            referencedRelation: "veiculos";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
-    Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
     Enums: {
       status_veiculo: StatusVeiculo;
       carroceria: Carroceria;
       combustivel: Combustivel;
       cambio: Cambio;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }
