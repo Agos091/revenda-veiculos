@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Tokens de design — ver docs/BRIEF-DESIGN.md
+   Regra de uso: 70% preto, 25% branco/cinza, 5% vermelho.
+   :root  = tema claro  -> area administrativa (/admin)
+   .dark  = tema escuro -> site publico (showroom premium a noite)
+   --------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+  --font-mono: var(--font-geist-mono);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* cores proprias do projeto */
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
+  --color-whatsapp-hover: var(--whatsapp-hover);
+  --color-success: var(--success);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+
+  /* glow vermelho (luz de freio) */
+  --shadow-glow: 0 0 24px var(--glow-red);
+  --shadow-glow-sm: 0 0 12px var(--glow-red);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* admin — tema claro */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #e10600;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --muted-foreground: #5a5a5a;
+  --accent: #f4f4f5;
+  --accent-foreground: #0a0a0a;
+  --destructive: #e10600;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #e10600;
+
+  --surface: #fafafa;
+  --elevated: #f4f4f5;
+  --success: #16a34a;
+  --whatsapp: #25d366;
+  --whatsapp-hover: #1fb855;
+  --whatsapp-foreground: #ffffff;
+  --glow-red: rgb(225 6 0 / 0.35);
+
+  --chart-1: #e10600;
+  --chart-2: #0a0a0a;
+  --chart-3: #5a5a5a;
+  --chart-4: #b3b3b3;
+  --chart-5: #e4e4e7;
+
+  /* 8px em botoes e inputs; cards usam rounded-xl (~12px) */
+  --radius: 0.5rem;
+
+  --sidebar: #fafafa;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #e10600;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #e10600;
+}
+
+.dark {
+  /* site publico — tema escuro */
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --card: #141414;
+  --card-foreground: #ffffff;
+  --popover: #141414;
+  --popover-foreground: #ffffff;
+  --primary: #e10600;
+  --primary-foreground: #ffffff;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ffffff;
+  --muted: #1f1f1f;
+  --muted-foreground: #b3b3b3;
+  --accent: #1f1f1f;
+  --accent-foreground: #ffffff;
+  --destructive: #e10600;
+  --border: #2a2a2a;
+  --input: #1f1f1f;
+  --ring: #e10600;
+
+  --surface: #141414;
+  --elevated: #1f1f1f;
+  --success: #22c55e;
+  --whatsapp: #25d366;
+  --whatsapp-hover: #1fb855;
+  --whatsapp-foreground: #052e16;
+  --glow-red: rgb(225 6 0 / 0.35);
+
+  --chart-1: #e10600;
+  --chart-2: #ffffff;
+  --chart-3: #b3b3b3;
+  --chart-4: #2a2a2a;
+  --chart-5: #1f1f1f;
+
+  --sidebar: #141414;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #e10600;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f1f1f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #e10600;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* numeros da ficha tecnica (km, ano, preco) sempre alinhados */
+  h1, h2, h3, h4, .font-heading {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  /* linha de acento vermelha no topo dos cards de destaque */
+  .accent-top {
+    @apply before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-primary before:content-[''];
+  }
+}

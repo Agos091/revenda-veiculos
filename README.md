@@ -5,17 +5,53 @@ Site de revenda de carros seminovos: catálogo público com redirecionamento par
 ## Documentação
 
 - [Plano técnico](docs/PLANO-TECNICO.md) — stack, modelo de dados, páginas, fases, hospedagem e custos
-- [Brief de design](docs/BRIEF-DESIGN.md) — prompt para o Claude Design (preto, branco e vermelho)
+- [Brief de design](docs/BRIEF-DESIGN.md) — direção visual (preto, branco e vermelho)
 
 ## Stack
 
-Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui · Supabase (Postgres, Auth, Storage) · Vercel
+Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · shadcn/ui · Supabase (Postgres, Auth, Storage) · Vercel
+
+## Como rodar
+
+```bash
+npm install
+cp .env.example .env.local   # preencha com as chaves do seu projeto Supabase
+npm run dev
+```
+
+Site público em `http://localhost:3000`, área do vendedor em `/admin`.
+
+### Banco de dados
+
+No SQL Editor do projeto Supabase, rode na ordem:
+
+1. `supabase/migrations/0001_init.sql` — tabelas, enums, índices, triggers, RLS e bucket `veiculos`
+2. `supabase/migrations/0002_seed.sql` — 3 carros de teste (**só em desenvolvimento**)
+
+Depois crie o usuário do vendedor em Authentication → Users (não existe cadastro público).
+
+## Estrutura
+
+```
+src/
+  app/(site)/     site público — tema escuro
+  app/(admin)/    área do vendedor — tema claro
+  components/ui/  shadcn/ui
+  lib/supabase/   clientes de navegador, servidor e middleware
+  lib/format.ts   preço, km, ano e rótulos em pt-BR
+  lib/whatsapp.ts montagem do link wa.me
+  types/          tipos do banco
+supabase/migrations/
+```
+
+Os dois temas são dois root layouts: o público força `.dark`, o admin fica no tema claro.
+Tokens de cor, fonte e raio ficam em `src/app/globals.css`.
 
 ## Status
 
 - [x] Planejamento
-- [ ] Fase 0 — Setup do projeto
-- [ ] Fase 1 — Banco de dados e RLS
+- [x] Fase 0 — Setup do projeto (Next.js, Tailwind, shadcn, tokens de design, cliente Supabase, middleware do admin)
+- [x] Fase 1 — SQL de banco e RLS escrito (falta rodar no projeto Supabase)
 - [ ] Fase 2 — Admin (CRUD de veículos)
-- [ ] Fase 3 — Site público
+- [ ] Fase 3 — Site público (home, listagem com filtros, detalhe, SEO/OG)
 - [ ] Fase 4 — Go-live
