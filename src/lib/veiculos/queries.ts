@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { CONFIGURACOES_DEMO, modoDemo } from "@/lib/veiculos/demo";
 import type {
   Configuracoes,
   StatusVeiculo,
@@ -108,6 +109,8 @@ export async function obterMetricas(): Promise<MetricasDashboard> {
 }
 
 export async function obterConfiguracoes(): Promise<Configuracoes | null> {
+  if (modoDemo()) return CONFIGURACOES_DEMO;
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("configuracoes")

@@ -12,6 +12,13 @@ import type { Cambio, Carroceria, Combustivel, VeiculoComFotos } from "@/types/d
 import { CardVeiculo } from "@/components/site/card-veiculo";
 import { FiltrosVeiculos } from "@/components/site/filtros-veiculos";
 import { FiltrosMobile, OrdenarSelect } from "@/components/site/barra-listagem";
+import {
+  AtalhosDeFiltro,
+  BuscaEstoque,
+  ChipsAtivos,
+} from "@/components/site/busca-estoque";
+import { obterConfiguracoes } from "@/lib/veiculos/queries";
+import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +69,7 @@ const ORDENACOES = [
 
 function lerFiltros(params: Params): FiltrosPublicos {
   return {
+    busca: texto(params, "busca"),
     marca: texto(params, "marca"),
     precoMin: numero(params, "precoMin"),
     precoMax: numero(params, "precoMax"),
@@ -91,6 +99,9 @@ export default async function ListagemPage({
   let marcas: string[] = [];
   let erro: string | null = null;
 
+  const configuracoes = await obterConfiguracoes().catch(() => null);
+  const whatsapp = configuracoes?.whatsapp ?? "";
+
   try {
     const [resultado, listaDeMarcas] = await Promise.all([
       listarVeiculosPublico(filtros),
@@ -119,11 +130,27 @@ export default async function ListagemPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <header className="mb-8">
-        <h1 className="font-heading text-3xl font-extrabold tracking-tight">Estoque</h1>
-        <p className="mt-1 text-sm text-muted-foreground tabular-nums">
-          {total} {total === 1 ? "veículo disponível" : "veículos disponíveis"}
-        </p>
+      <header className="mb-6 space-y-5">
+        <div>
+          <h1 className="font-heading text-3xl font-extrabold tracking-tight">Estoque</h1>
+          <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+            {total} {total === 1 ? "veículo disponível" : "veículos disponíveis"}
+          </p>
+        </div>
+
+        <Suspense fallback={null}>
+          <BuscaEstoque className="max-w-xl" />
+        </Suspense>
+
+        <div className="-mx-4 overflow-x-auto px-4">
+          <Suspense fallback={null}>
+            <AtalhosDeFiltro />
+          </Suspense>
+        </div>
+
+        <Suspense fallback={null}>
+          <ChipsAtivos />
+        </Suspense>
       </header>
 
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -160,8 +187,14 @@ export default async function ListagemPage({
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {veiculos.map((v) => (
-                <CardVeiculo key={v.id} veiculo={v} />
+              {veiculos.map((v, i) => (
+                <CardVeiculo
+                  key={v.id}
+                  veiculo={v}
+                  whatsapp={whatsapp}
+                  siteUrl={env.siteUrl}
+                  prioridade={i < 3}
+                />
               ))}
             </div>
           )}

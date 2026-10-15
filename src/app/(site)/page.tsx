@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { BadgeCheck, Banknote, FileCheck2, Repeat } from "lucide-react";
-import { listarDestaques, listarMarcas } from "@/lib/veiculos/publico";
+import { listarDestaques, listarVeiculosPublico } from "@/lib/veiculos/publico";
 import { obterConfiguracoes } from "@/lib/veiculos/queries";
 import type { VeiculoComFotos } from "@/types/database";
-import { BuscaRapida } from "@/components/site/busca-rapida";
+import { AtalhosDeFiltro, BuscaEstoque } from "@/components/site/busca-estoque";
 import { CardVeiculo } from "@/components/site/card-veiculo";
+import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -33,11 +35,20 @@ const DIFERENCIAIS = [
 ];
 
 export default async function HomePage() {
-  const [destaques, marcas, configuracoes] = await Promise.all([
+  const [destaques, estoque, configuracoes] = await Promise.all([
     listarDestaques().catch(() => [] as VeiculoComFotos[]),
-    listarMarcas().catch(() => [] as string[]),
+    listarVeiculosPublico({ pagina: 1 })
+      .then((r) => r.veiculos)
+      .catch(() => [] as VeiculoComFotos[]),
     obterConfiguracoes().catch(() => null),
   ]);
+
+  // a vitrine nunca fica vazia: o que falta de destaque é completado com o estoque
+  const vitrine = [
+    ...destaques,
+    ...estoque.filter((v) => !destaques.some((d) => d.id === v.id)),
+  ].slice(0, 6);
+  const whatsapp = configuracoes?.whatsapp ?? "";
 
   return (
     <main>
@@ -61,8 +72,16 @@ export default async function HomePage() {
             Sem burocracia e sem letra miúda.
           </p>
 
-          <div className="mt-8 max-w-3xl">
-            <BuscaRapida marcas={marcas} />
+          <div className="mt-8 max-w-xl">
+            <Suspense fallback={null}>
+              <BuscaEstoque />
+            </Suspense>
+          </div>
+
+          <div className="mt-4 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <Suspense fallback={null}>
+              <AtalhosDeFiltro />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -72,11 +91,11 @@ export default async function HomePage() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h2 className="font-heading relative inline-block pb-2 text-2xl font-bold tracking-tight">
-              Destaques
+              No pátio agora
               <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Os carros que acabaram de chegar no pátio.
+              Clique no carro para ver tudo — ou chame no WhatsApp direto do card.
             </p>
           </div>
           <Button asChild variant="outline">
@@ -84,18 +103,21 @@ export default async function HomePage() {
           </Button>
         </div>
 
-        {destaques.length === 0 ? (
+        {vitrine.length === 0 ? (
           <p className="rounded-xl border border-dashed py-16 text-center text-sm text-muted-foreground">
-            Nenhum destaque no momento. Veja o{" "}
-            <Link href="/veiculos" className="text-primary hover:underline">
-              estoque completo
-            </Link>
-            .
+            Estoque sendo atualizado. Fale com a gente no WhatsApp que a gente procura
+            o carro para você.
           </p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {destaques.map((v) => (
-              <CardVeiculo key={v.id} veiculo={v} />
+            {vitrine.map((v, i) => (
+              <CardVeiculo
+                key={v.id}
+                veiculo={v}
+                whatsapp={whatsapp}
+                siteUrl={env.siteUrl}
+                prioridade={i < 3}
+              />
             ))}
           </div>
         )}

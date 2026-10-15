@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { modoDemo, VEICULOS_DEMO } from "@/lib/veiculos/demo";
 import type {
   Cambio,
   Carroceria,
@@ -18,6 +19,8 @@ export type Ordenacao =
   | "menor-km";
 
 export interface FiltrosPublicos {
+  /** Busca livre por marca, modelo ou versão. */
+  busca?: string;
   marca?: string;
   modelo?: string;
   precoMin?: number;
@@ -49,15 +52,31 @@ export async function listarVeiculosPublico(filtros: FiltrosPublicos = {}): Prom
   veiculos: VeiculoComFotos[];
   total: number;
 }> {
-  const supabase = await createClient();
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const de = (pagina - 1) * POR_PAGINA;
+
+  if (modoDemo()) {
+    const filtrados = aplicarFiltrosEmMemoria(VEICULOS_DEMO, filtros);
+    return {
+      veiculos: filtrados.slice(de, de + POR_PAGINA),
+      total: filtrados.length,
+    };
+  }
+
+  const supabase = await createClient();
 
   let query = supabase
     .from("veiculos")
     .select("*, fotos:veiculo_fotos(*)", { count: "exact" })
     .in("status", VISIVEIS);
 
+  const busca = filtros.busca?.trim();
+  if (busca) {
+    const termo = `%${busca}%`;
+    query = query.or(
+      `marca.ilike.${termo},modelo.ilike.${termo},versao.ilike.${termo}`,
+    );
+  }
   if (filtros.marca) query = query.ilike("marca", filtros.marca);
   if (filtros.modelo) query = query.ilike("modelo", `%${filtros.modelo}%`);
   if (filtros.precoMin !== undefined) query = query.gte("preco", filtros.precoMin);
@@ -86,6 +105,10 @@ export async function listarVeiculosPublico(filtros: FiltrosPublicos = {}): Prom
 }
 
 export async function obterVeiculoPorSlug(slug: string): Promise<VeiculoComFotos | null> {
+  if (modoDemo()) {
+    return VEICULOS_DEMO.find((v) => v.slug === slug) ?? null;
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("veiculos")
@@ -103,6 +126,13 @@ export async function obterVeiculoPorSlug(slug: string): Promise<VeiculoComFotos
 }
 
 export async function listarDestaques(limite = 6): Promise<VeiculoComFotos[]> {
+  if (modoDemo()) {
+    return VEICULOS_DEMO.filter((v) => v.destaque && v.status === "disponivel").slice(
+      0,
+      limite,
+    );
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("veiculos")
@@ -121,6 +151,15 @@ export async function listarSemelhantes(
   veiculo: VeiculoComFotos,
   limite = 4,
 ): Promise<VeiculoComFotos[]> {
+  if (modoDemo()) {
+    return VEICULOS_DEMO.filter(
+      (v) =>
+        v.id !== veiculo.id &&
+        v.status === "disponivel" &&
+        (!veiculo.carroceria || v.carroceria === veiculo.carroceria),
+    ).slice(0, limite);
+  }
+
   const supabase = await createClient();
   let query = supabase
     .from("veiculos")
@@ -139,6 +178,12 @@ export async function listarSemelhantes(
 
 /** Marcas com veículo à venda, para o select de busca rápida e de filtros. */
 export async function listarMarcas(): Promise<string[]> {
+  if (modoDemo()) {
+    return [...new Set(VEICULOS_DEMO.map((v) => v.marca))].sort((a, b) =>
+      a.localeCompare(b, "pt-BR"),
+    );
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("veiculos")
@@ -153,6 +198,10 @@ export async function listarMarcas(): Promise<string[]> {
 
 /** Slugs para o sitemap. */
 export async function listarSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+  if (modoDemo()) {
+    return VEICULOS_DEMO.map((v) => ({ slug: v.slug, updated_at: v.updated_at }));
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("veiculos")
@@ -161,4 +210,44 @@ export async function listarSlugs(): Promise<{ slug: string; updated_at: string 
 
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+
+/** Mesma lógica de filtro/ordenação da query, para o modo demo. */
+function aplicarFiltrosEmMemoria(
+  lista: VeiculoComFotos[],
+  filtros: FiltrosPublicos,
+): VeiculoComFotos[] {
+  const busca = filtros.busca?.trim().toLowerCase();
+
+  const filtrados = lista.filter((v) => {
+    if (!VISIVEIS.includes(v.status)) return false;
+    if (busca) {
+      const alvo = `${v.marca} ${v.modelo} ${v.versao ?? ""}`.toLowerCase();
+      if (!alvo.includes(busca)) return false;
+    }
+    if (filtros.marca && v.marca.toLowerCase() !== filtros.marca.toLowerCase()) return false;
+    if (filtros.precoMin !== undefined && v.preco < filtros.precoMin) return false;
+    if (filtros.precoMax !== undefined && v.preco > filtros.precoMax) return false;
+    if (filtros.anoMin !== undefined && v.ano_modelo < filtros.anoMin) return false;
+    if (filtros.anoMax !== undefined && v.ano_modelo > filtros.anoMax) return false;
+    if (filtros.kmMax !== undefined && v.km > filtros.kmMax) return false;
+    if (filtros.cambio && v.cambio !== filtros.cambio) return false;
+    if (filtros.combustivel && v.combustivel !== filtros.combustivel) return false;
+    if (filtros.carroceria && v.carroceria !== filtros.carroceria) return false;
+    if (filtros.aceitaTroca && !v.aceita_troca) return false;
+    if (filtros.aceitaFinanciamento && !v.aceita_financiamento) return false;
+    return true;
+  });
+
+  const ordem = ORDENS[filtros.ordenar ?? "recentes"];
+  return filtrados.sort((a, b) => {
+    if (a.destaque !== b.destaque) return a.destaque ? -1 : 1;
+    const campo = ordem.coluna as keyof VeiculoComFotos;
+    const x = a[campo] as number | string;
+    const y = b[campo] as number | string;
+    if (x === y) return 0;
+    const menor = x < y ? -1 : 1;
+    return ordem.crescente ? menor : -menor;
+  });
 }

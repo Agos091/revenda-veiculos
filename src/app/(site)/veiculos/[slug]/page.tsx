@@ -143,63 +143,18 @@ export default async function DetalheVeiculoPage({
         <span className="text-foreground">{nomeCompleto}</span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-10">
+      {/* no celular a ordem é foto -> preço/CTA -> ficha; no desktop o preço fica à direita */}
+      <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           <GaleriaVeiculo fotos={veiculo.fotos} titulo={nomeCompleto} vendido={vendido} />
-
-          <section>
-            <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
-              Ficha técnica
-              <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
-            </h2>
-            <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
-              {ficha.map((item) => (
-                <div key={item.label}>
-                  <dt className="text-xs tracking-wide text-muted-foreground uppercase">
-                    {item.label}
-                  </dt>
-                  <dd className="mt-1 font-medium tabular-nums">{item.valor}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          {veiculo.opcionais.length > 0 && (
-            <section>
-              <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
-                Opcionais
-                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
-              </h2>
-              <ul className="mt-5 flex flex-wrap gap-2">
-                {veiculo.opcionais.map((o) => (
-                  <li
-                    key={o}
-                    className="rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground"
-                  >
-                    {o}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {veiculo.descricao && (
-            <section>
-              <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
-                Sobre o veículo
-                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
-              </h2>
-              <p className="mt-5 whitespace-pre-line text-muted-foreground">
-                {veiculo.descricao}
-              </p>
-            </section>
-          )}
         </div>
 
         {/* ---------------------------- coluna lateral --------------------------- */}
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        <aside className="min-w-0 space-y-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-xl border bg-card p-6">
-            <h1 className="font-heading text-2xl leading-tight font-extrabold">{nome}</h1>
+            <h1 className="font-heading text-2xl leading-tight font-extrabold">
+              {veiculo.marca} {veiculo.modelo}
+            </h1>
             {veiculo.versao && (
               <p className="mt-1 text-sm text-muted-foreground">{veiculo.versao}</p>
             )}
@@ -249,6 +204,57 @@ export default async function DetalheVeiculoPage({
             </div>
           </div>
         </aside>
+
+        <div className="min-w-0 space-y-10 lg:col-start-1 lg:row-start-2">
+          <section>
+            <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
+              Ficha técnica
+              <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
+            </h2>
+            <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
+              {ficha.map((item) => (
+                <div key={item.label}>
+                  <dt className="text-xs tracking-wide text-muted-foreground uppercase">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-1 font-medium tabular-nums">{item.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          {veiculo.opcionais.length > 0 && (
+            <section>
+              <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
+                Opcionais
+                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
+              </h2>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {veiculo.opcionais.map((o) => (
+                  <li
+                    key={o}
+                    className="rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground"
+                  >
+                    {o}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {veiculo.descricao && (
+            <section>
+              <h2 className="font-heading relative inline-block pb-2 text-xl font-bold">
+                Sobre o veículo
+                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-primary" />
+              </h2>
+              <p className="mt-5 whitespace-pre-line text-muted-foreground">
+                {veiculo.descricao}
+              </p>
+            </section>
+          )}
+        </div>
+
       </div>
 
       {semelhantes.length > 0 && (
@@ -259,7 +265,12 @@ export default async function DetalheVeiculoPage({
           </h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {semelhantes.map((v) => (
-              <CardVeiculo key={v.id} veiculo={v} />
+              <CardVeiculo
+                key={v.id}
+                veiculo={v}
+                whatsapp={whatsapp}
+                siteUrl={env.siteUrl}
+              />
             ))}
           </div>
         </section>
@@ -267,7 +278,7 @@ export default async function DetalheVeiculoPage({
 
       {/* barra fixa do mobile */}
       {!vendido && whatsapp && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-t-primary bg-background/95 backdrop-blur lg:hidden">
+        <div className="barra-contato fixed inset-x-0 bottom-0 z-30 border-t border-t-primary bg-background/95 backdrop-blur lg:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <p className="font-heading text-xl font-extrabold tabular-nums">
               {formatarPreco(veiculo.preco)}

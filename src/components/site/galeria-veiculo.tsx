@@ -32,7 +32,7 @@ export function GaleriaVeiculo({
   const proxima = () => setIndice((i) => (i + 1) % fotos.length);
 
   return (
-    <div className="space-y-3">
+    <div className="min-w-0 space-y-3">
       <div className="relative aspect-video overflow-hidden rounded-xl border bg-card">
         <Image
           src={atual.url}

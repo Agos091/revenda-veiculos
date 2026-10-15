@@ -74,7 +74,7 @@ export function WhatsappFlutuante({ whatsapp }: { whatsapp: string }) {
       rel="noopener noreferrer"
       aria-label="Chamar no WhatsApp"
       onClick={() => void registrarClique(null)}
-      className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-lg transition-transform hover:scale-105 md:right-6 md:bottom-6"
+      className="whatsapp-flutuante fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-lg transition-transform hover:scale-105 md:right-6 md:bottom-6"
     >
       <MessageCircle className="size-7" />
     </a>

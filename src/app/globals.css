@@ -180,6 +180,14 @@
 }
 
 @layer utilities {
+  /* na página de detalhe o preço + WhatsApp ficam na barra fixa do rodapé:
+     o botão flutuante sumiria em cima dela, então esconde um dos dois */
+  @media (width < 64rem) {
+    body:has(.barra-contato) .whatsapp-flutuante {
+      display: none;
+    }
+  }
+
   /* linha de acento vermelha no topo dos cards de destaque */
   .accent-top {
     @apply before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-primary before:content-[''];

@@ -21,6 +21,12 @@ npm run dev
 
 Site público em `http://localhost:3000`, área do vendedor em `/admin`.
 
+### Modo demo
+
+Sem projeto Supabase ainda? Coloque `NEXT_PUBLIC_DEMO=1` no `.env.local`: o site
+público passa a usar 8 carros de exemplo (`src/lib/veiculos/demo.ts`), o que serve
+para ver e testar o fluxo. Só funciona em desenvolvimento e não afeta o admin.
+
 ### Banco de dados
 
 No SQL Editor do projeto Supabase, rode na ordem:
