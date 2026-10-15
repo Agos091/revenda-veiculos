@@ -232,3 +232,15 @@ export async function salvarConfiguracoes(valores: unknown): Promise<ResultadoSa
   revalidatePath("/", "layout");
   return { ok: true };
 }
+
+/* ------------------------- métricas do site público ---------------------- */
+
+/** Registra o clique no botão do WhatsApp (política de insert é pública). */
+export async function registrarClique(veiculoId: string | null): Promise<void> {
+  try {
+    const supabase = await createClient();
+    await supabase.from("cliques_whatsapp").insert({ veiculo_id: veiculoId });
+  } catch {
+    // métrica não pode quebrar o contato com o cliente
+  }
+}

@@ -35,12 +35,15 @@ Depois crie o usuário do vendedor em Authentication → Users (não existe cada
 ```
 src/
   app/(site)/     site público — tema escuro
+    page.tsx          home (hero, busca rápida, destaques)
+    veiculos/         listagem com filtros e página de detalhe
   app/(admin)/    área do vendedor — tema claro
     admin/login/      entrar (Supabase Auth)
     admin/(painel)/   painel, veículos, configurações
   components/ui/  shadcn/ui
   lib/supabase/   clientes de navegador, servidor e middleware
   lib/veiculos/   schema zod, constantes, consultas e server actions
+                  (queries.ts = admin, publico.ts = site)
   lib/format.ts   preço, km, ano e rótulos em pt-BR
   lib/whatsapp.ts montagem do link wa.me
   types/          tipos do banco
@@ -56,5 +59,5 @@ Tokens de cor, fonte e raio ficam em `src/app/globals.css`.
 - [x] Fase 0 — Setup do projeto (Next.js, Tailwind, shadcn, tokens de design, cliente Supabase, middleware do admin)
 - [x] Fase 1 — SQL de banco e RLS escrito (falta rodar no projeto Supabase)
 - [x] Fase 2 — Admin: login, painel, tabela, formulário em abas, fotos e configurações
-- [ ] Fase 3 — Site público (home, listagem com filtros, detalhe, SEO/OG)
+- [x] Fase 3 — Site público: home, listagem com filtros, detalhe, WhatsApp, SEO/OG e sitemap
 - [ ] Fase 4 — Go-live
