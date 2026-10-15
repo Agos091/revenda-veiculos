@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { listarSlugs } from "@/lib/veiculos/publico";
 import { env } from "@/lib/env";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = env.siteUrl;

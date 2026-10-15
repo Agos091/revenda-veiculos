@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BadgeCheck, Banknote, FileCheck2, Repeat } from "lucide-react";
 import { listarDestaques, listarVeiculosPublico } from "@/lib/veiculos/publico";
-import { obterConfiguracoes } from "@/lib/veiculos/queries";
+import { obterConfiguracoesPublicas } from "@/lib/veiculos/publico";
 import type { VeiculoComFotos } from "@/types/database";
 import { AtalhosDeFiltro, BuscaEstoque } from "@/components/site/busca-estoque";
 import { CardVeiculo } from "@/components/site/card-veiculo";
@@ -9,7 +9,8 @@ import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
+// catálogo muda pouco: cache de 1 minuto, revalidado na hora quando o vendedor salva
+export const revalidate = 60;
 
 const DIFERENCIAIS = [
   {
@@ -40,7 +41,7 @@ export default async function HomePage() {
     listarVeiculosPublico({ pagina: 1 })
       .then((r) => r.veiculos)
       .catch(() => [] as VeiculoComFotos[]),
-    obterConfiguracoes().catch(() => null),
+    obterConfiguracoesPublicas().catch(() => null),
   ]);
 
   // a vitrine nunca fica vazia: o que falta de destaque é completado com o estoque

@@ -17,12 +17,10 @@ import {
   BuscaEstoque,
   ChipsAtivos,
 } from "@/components/site/busca-estoque";
-import { obterConfiguracoes } from "@/lib/veiculos/queries";
+import { obterConfiguracoesPublicas } from "@/lib/veiculos/publico";
 import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Estoque de seminovos",
@@ -99,7 +97,7 @@ export default async function ListagemPage({
   let marcas: string[] = [];
   let erro: string | null = null;
 
-  const configuracoes = await obterConfiguracoes().catch(() => null);
+  const configuracoes = await obterConfiguracoesPublicas().catch(() => null);
   const whatsapp = configuracoes?.whatsapp ?? "";
 
   try {

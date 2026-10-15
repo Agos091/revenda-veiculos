@@ -15,6 +15,12 @@ function revalidarAdmin(id?: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/veiculos");
   if (id) revalidatePath(`/admin/veiculos/${id}`);
+
+  // o site público usa ISR: sem isso a mudança só apareceria no próximo ciclo
+  revalidatePath("/");
+  revalidatePath("/veiculos");
+  revalidatePath("/veiculos/[slug]", "page");
+  revalidatePath("/sitemap.xml");
 }
 
 /** Cria ou atualiza um veículo. O slug é gerado pelo banco na criação. */

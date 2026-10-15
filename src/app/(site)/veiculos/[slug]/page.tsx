@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Share2 } from "lucide-react";
-import { obterVeiculoPorSlug, listarSemelhantes } from "@/lib/veiculos/publico";
-import { obterConfiguracoes } from "@/lib/veiculos/queries";
+import {
+  listarSemelhantes,
+  obterConfiguracoesPublicas,
+  obterVeiculoPorSlug,
+} from "@/lib/veiculos/publico";
 import { env } from "@/lib/env";
 import {
   formatarAno,
@@ -19,7 +22,7 @@ import { CardVeiculo } from "@/components/site/card-veiculo";
 import { GaleriaVeiculo } from "@/components/site/galeria-veiculo";
 import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function capa(veiculo: VeiculoComFotos) {
   const fotos = veiculo.fotos ?? [];
@@ -73,7 +76,7 @@ export default async function DetalheVeiculoPage({
   if (!veiculo) notFound();
 
   const [configuracoes, semelhantes] = await Promise.all([
-    obterConfiguracoes().catch(() => null),
+    obterConfiguracoesPublicas().catch(() => null),
     listarSemelhantes(veiculo).catch(() => [] as VeiculoComFotos[]),
   ]);
 

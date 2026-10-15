@@ -1,8 +1,9 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
-import { modoDemo, VEICULOS_DEMO } from "@/lib/veiculos/demo";
+import { createClientePublico } from "@/lib/supabase/publico";
+import { CONFIGURACOES_DEMO, modoDemo, VEICULOS_DEMO } from "@/lib/veiculos/demo";
 import type {
   Cambio,
+  Configuracoes,
   Carroceria,
   Combustivel,
   StatusVeiculo,
@@ -63,7 +64,7 @@ export async function listarVeiculosPublico(filtros: FiltrosPublicos = {}): Prom
     };
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
 
   let query = supabase
     .from("veiculos")
@@ -109,7 +110,7 @@ export async function obterVeiculoPorSlug(slug: string): Promise<VeiculoComFotos
     return VEICULOS_DEMO.find((v) => v.slug === slug) ?? null;
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
   const { data, error } = await supabase
     .from("veiculos")
     .select("*, fotos:veiculo_fotos(*)")
@@ -133,7 +134,7 @@ export async function listarDestaques(limite = 6): Promise<VeiculoComFotos[]> {
     );
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
   const { data, error } = await supabase
     .from("veiculos")
     .select("*, fotos:veiculo_fotos(*)")
@@ -160,7 +161,7 @@ export async function listarSemelhantes(
     ).slice(0, limite);
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
   let query = supabase
     .from("veiculos")
     .select("*, fotos:veiculo_fotos(*)")
@@ -184,7 +185,7 @@ export async function listarMarcas(): Promise<string[]> {
     );
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
   const { data, error } = await supabase
     .from("veiculos")
     .select("marca")
@@ -202,7 +203,7 @@ export async function listarSlugs(): Promise<{ slug: string; updated_at: string 
     return VEICULOS_DEMO.map((v) => ({ slug: v.slug, updated_at: v.updated_at }));
   }
 
-  const supabase = await createClient();
+  const supabase = createClientePublico();
   const { data, error } = await supabase
     .from("veiculos")
     .select("slug, updated_at")
@@ -250,4 +251,19 @@ function aplicarFiltrosEmMemoria(
     const menor = x < y ? -1 : 1;
     return ordem.crescente ? menor : -menor;
   });
+}
+
+/** Dados da loja para o site público — sem cookies, para não quebrar o cache. */
+export async function obterConfiguracoesPublicas(): Promise<Configuracoes | null> {
+  if (modoDemo()) return CONFIGURACOES_DEMO;
+
+  const supabase = createClientePublico();
+  const { data, error } = await supabase
+    .from("configuracoes")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data as Configuracoes | null;
 }

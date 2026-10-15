@@ -6,6 +6,7 @@ Site de revenda de carros seminovos: catálogo público com redirecionamento par
 
 - [Plano técnico](docs/PLANO-TECNICO.md) — stack, modelo de dados, páginas, fases, hospedagem e custos
 - [Brief de design](docs/BRIEF-DESIGN.md) — direção visual (preto, branco e vermelho)
+- [Go-live](docs/DEPLOY.md) — passo a passo de Supabase, Vercel, domínio e checklist pós-deploy
 
 ## Stack
 
@@ -66,4 +67,4 @@ Tokens de cor, fonte e raio ficam em `src/app/globals.css`.
 - [x] Fase 1 — SQL de banco e RLS escrito (falta rodar no projeto Supabase)
 - [x] Fase 2 — Admin: login, painel, tabela, formulário em abas, fotos e configurações
 - [x] Fase 3 — Site público: home, listagem com filtros, detalhe, WhatsApp, SEO/OG e sitemap
-- [ ] Fase 4 — Go-live
+- [~] Fase 4 — Go-live: código pronto (ISR, analytics, headers, 404, ícone) — falta criar Supabase, Vercel e domínio, ver [docs/DEPLOY.md](docs/DEPLOY.md)

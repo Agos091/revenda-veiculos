@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 import { Cabecalho } from "@/components/site/cabecalho";
 import { Rodape } from "@/components/site/rodape";
 import { WhatsappFlutuante } from "@/components/site/botao-whatsapp";
-import { obterConfiguracoes } from "@/lib/veiculos/queries";
+import { obterConfiguracoesPublicas } from "@/lib/veiculos/publico";
 import { env } from "@/lib/env";
 import "../globals.css";
 
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const configuracoes = await obterConfiguracoes().catch(() => null);
+  const configuracoes = await obterConfiguracoesPublicas().catch(() => null);
   const nomeLoja = configuracoes?.nome_loja ?? "Revenda";
   const whatsapp = configuracoes?.whatsapp ?? "";
 
@@ -49,6 +51,8 @@ export default async function SiteLayout({
         <Rodape configuracoes={configuracoes} />
         <WhatsappFlutuante whatsapp={whatsapp} />
         <Toaster />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
