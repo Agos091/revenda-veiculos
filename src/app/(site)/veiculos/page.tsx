@@ -10,6 +10,7 @@ import {
 } from "@/lib/veiculos/publico";
 import type { Cambio, Carroceria, Combustivel, VeiculoComFotos } from "@/types/database";
 import { CardVeiculo } from "@/components/site/card-veiculo";
+import { BotaoWhatsapp } from "@/components/site/botao-whatsapp";
 import { FiltrosVeiculos } from "@/components/site/filtros-veiculos";
 import { FiltrosMobile, OrdenarSelect } from "@/components/site/barra-listagem";
 import {
@@ -112,6 +113,11 @@ export default async function ListagemPage({
     erro = e instanceof Error ? e.message : "Não foi possível carregar o estoque.";
   }
 
+  // "sem resultado" é coisa diferente de "estoque vazio"
+  const temFiltro = Object.keys(params).some(
+    (chave) => chave !== "ordenar" && chave !== "pagina",
+  );
+
   const pagina = filtros.pagina ?? 1;
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
 
@@ -176,12 +182,24 @@ export default async function ListagemPage({
 
           {!erro && veiculos.length === 0 ? (
             <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-20 text-center">
-              <p className="text-sm text-muted-foreground">
-                Nenhum veículo com esses filtros.
-              </p>
-              <Button asChild variant="outline">
-                <Link href="/veiculos">Limpar filtros</Link>
-              </Button>
+              {temFiltro ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum veículo com esses filtros.
+                  </p>
+                  <Button asChild variant="outline">
+                    <Link href="/veiculos">Limpar filtros</Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="max-w-sm text-sm text-muted-foreground">
+                    O estoque está sendo atualizado. Chame a gente no WhatsApp que
+                    procuramos o carro que você quer.
+                  </p>
+                  {whatsapp && <BotaoWhatsapp whatsapp={whatsapp} siteUrl={env.siteUrl} />}
+                </>
+              )}
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
