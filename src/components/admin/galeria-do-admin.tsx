@@ -35,6 +35,14 @@ export function GaleriaDoAdmin({
   const [ordem, setOrdem] = useState<VeiculoFoto[]>(fotos);
   const [, startTransition] = useTransition();
 
+  // depois de enviar, remover ou reordenar, o router.refresh() traz props novas:
+  // sem isso o estado local continuaria mostrando a lista antiga.
+  const [fotosAnteriores, setFotosAnteriores] = useState(fotos);
+  if (fotos !== fotosAnteriores) {
+    setFotosAnteriores(fotos);
+    setOrdem(fotos);
+  }
+
   const sincronizar = () => {
     router.refresh();
   };
